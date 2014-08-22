@@ -3,6 +3,9 @@
 class Hiera
 module Backend
   class Fancyass_backend
+    
+    attr_reader :debug
+    
     def initialize
       begin
         Dir.glob("#{File.dirname(__FILE__)}/fancyass_wardrobe/*/*.rb").each { |file| require file }
