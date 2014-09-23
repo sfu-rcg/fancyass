@@ -22,9 +22,8 @@ module Backend
       unless available_trousers.include?(Config[:fancyass][:trouser])
         raise "Fancyass: Invalid choice of trousers - #{Config[:fancyass][:trouser]} - Acceptable values: #{available_trousers}"
       end
-      
-      @trouser = Object.const_get("Hiera::Backend::Fancyass::" + Config[:fancyass][:trouser].capitalize).new
       Config[:fancyass][:debug] == true ? @debug = true : @debug = false
+      @trouser = Object.const_get("Hiera::Backend::Fancyass::" + Config[:fancyass][:trouser].capitalize).new(@debug)
      
       Hiera.debug("Hiera Fancyass backend starting")
     end
