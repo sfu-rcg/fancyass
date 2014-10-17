@@ -4,7 +4,7 @@ class Hiera
 module Backend
 module Fancyass
   class Foreman
-    def initialize
+    def initialize(debug=false)
       begin
         require 'yaml'
       rescue => e
@@ -12,16 +12,19 @@ module Fancyass
       end
       
       @url  = Config[:fancyass][:foreman][:url]
+      @user = Config[:fancyass][:foreman][:user]
+      @password = Config[:fancyass][:foreman][:password]
       # This will be used as the key for the scope hash, which is HUGE. Common examples: fqdn, clientcert, macaddress
       @search_key = Config[:fancyass][:foreman][:search_key]
       Config[:fancyass][:foreman][:output][:disk] == true ? @output_to_disk = true : @output_to_disk = false
+      @debug = debug
       
       if @output_to_disk
         @output_format = Config[:fancyass][:foreman][:output][:format]
         raise "Fancyass: Invalid output format - #{@output_format} - Acceptable values: yaml, json" unless ['yaml', 'json'].include? @output_format
       end
       
-      @connection = Hiera::Backend::Fancyass.http_connect @url, @debug
+      @connection = Hiera::Backend::Fancyass.http_connect @url, @debug, @user, @password
       
       # Used for the lookup method
       @timestamp = nil
