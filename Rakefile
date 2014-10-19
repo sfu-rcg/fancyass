@@ -5,7 +5,7 @@ rescue LoadError => e
 end  
 
 begin
-  puppet_lib_dir = ENV["PUPPET_LIB"] || `puppet config print plugindest`.chomp
+  puppet_lib_dir = ENV["PUPPET_LIB"] || $:.first
 rescue => e 
   puts e
   exit 1
