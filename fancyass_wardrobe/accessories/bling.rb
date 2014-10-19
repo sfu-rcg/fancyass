@@ -29,8 +29,11 @@ module Fancyass
 
     # Ask the server for the specified data
     # - returns the response's body (usually yaml, or json)
-    def get_request(connection, url, trousers='')
+    def get_request(connection, url, request_headers = {}, trousers='')
       response = connection.get do |request|
+        request_headers.each do |key, value|
+          request.headers[key] = value
+        end
         request.url url
       end
       unless response.status == 200

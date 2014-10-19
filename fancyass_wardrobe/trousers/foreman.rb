@@ -23,6 +23,7 @@ module Fancyass
         @output_format = Config[:fancyass][:foreman][:output][:format]
         raise "Fancyass: Invalid output format - #{@output_format} - Acceptable values: yaml, json" unless ['yaml', 'json'].include? @output_format
       end
+      @request_headers = Config[:fancyass][:foreman][:request_headers] ||= {'Accept' => 'application/json'}
       
       @connection = Hiera::Backend::Fancyass.http_connect @url, @debug, @user, @password
       
@@ -32,11 +33,13 @@ module Fancyass
     end
 
     def lookup(key, scope, order_override, resolution_type)
+      Hiera.debug("Fancyass: Starting Foreman lookup for #{key}") if @debug
       unless @timestamp == scope['_timestamp']
         # Since The Foreman will return all its values at once, we only
         # need to contact it once during a node's run. This is done using timestamps
-        @values = YAML::load Fancyass.get_request(@connection, "/param_lookup?#{@search_key}=#{scope[@search_key]}", 'The Foreman')
+        @values = YAML::load Fancyass.get_request(@connection, "/param_lookup?#{@search_key}=#{scope[@search_key]}", @request_headers, 'The Foreman')
         @timestamp = scope['_timestamp']
+        Hiera.debug("Fancyass: Foreman values for #{scope[@search_key]} - #{@values}") if @debug
         # Allows you to merge values with other Hiera datasources
         if @output_to_disk
           hiera_data_dir = Fancyass.determine_data_dir
