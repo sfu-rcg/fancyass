@@ -23,7 +23,9 @@ module Fancyass
         @output_format = Config[:fancyass][:foreman][:output][:format]
         raise "Fancyass: Invalid output format - #{@output_format} - Acceptable values: yaml, json" unless ['yaml', 'json'].include? @output_format
       end
-      @request_headers = Config[:fancyass][:foreman][:request_headers] ||= {'Accept' => 'application/json'}
+      @request_headers = Config[:fancyass][:foreman][:request_headers] || {}
+      # The Foreman requires that the Accept header field be set to application/json
+      @request_headers.merge!({'Accept' => 'application/json'})
       
       @connection = Hiera::Backend::Fancyass.http_connect @url, @debug, @user, @password
       
