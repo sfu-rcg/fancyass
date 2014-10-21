@@ -23,12 +23,12 @@ cd fancyass
 bundle install
 ```
 
-* Run rake as a privileged user, optionally setting PUPPET_LIB to the directory where you want fancyass to be installed. It must be a directory that Puppet loads (ex: /var/lib/puppet/lib). It defaults to whatever `puppet config print plugindest` returns.
+* Run rake as a privileged user, optionally setting PUPPET_LIB to the directory where you want fancyass to be installed. It must be located in one of Ruby's load paths (`ruby -e 'puts $:'`). It defaults to the first path in $: (`ruby -e 'puts $:.first'`).
 
 ```bash
 rake
 # OR
-PUPPET_LIB=/var/lib/puppet/lib rake
+PUPPET_LIB=/some/ruby/load/path rake
 ```
 
 * Install [sfu-rcg's foreman_param_lookup](https://github.com/sfu-rcg/foreman_param_lookup) plugin on your Foreman server, and ensure it works.
@@ -54,8 +54,17 @@ The following values must be set underneath :foreman:.
 #####`:url:`
 The URL of your Foreman server.
 
-#####`:search_key`
+#####`:user:`
+The user to use to authenticate
+
+#####`:password:`
+The password for the above user
+
+#####`:search_key:`
 This will be used as the key for searching & identifying your hosts. Acceptable values are: fqdn, clientcert, and macaddress.
+
+#####`:request_headers:`
+An optional hash that allows you to specify request headers for the connection to the Foreman server.
 
 #####`:output:`
 An optional hash that allows you to choose how to handle the Foreman's response. If not provided, fancyass will simply return the value for key lookups as they're requested. This however prevents Hiera from merging those values with other backends.
@@ -63,7 +72,7 @@ An optional hash that allows you to choose how to handle the Foreman's response.
 #####`:disk:`
 A key underneath :output: that will write the response from The Foreman to disk so that it can be merged with other backends (ex: yaml, or json). The file will be written to wherever :datadir is set to in hiera.yaml (folder must exist), otherwise it will write the file to Hiera's default location for your system (ex: /var/lib/hiera for \*nix). 
 
-#####`:output:`
+#####`:format:`
 A key underneath :output: that will set the format of the file. Acceptable values are: yaml, and json.
 
 Full example:
@@ -86,7 +95,11 @@ Full example:
   :trouser: 'foreman'
   :foreman:
     :url: 'https://foreman.domain.com'
+    :user: 'admin'
+    :password: 'changeme'
     :search_key: 'fqdn'
+    :request_headers:
+      :Accept: 'application/json'
     :output:
       :disk: true
       :format: 'yaml'

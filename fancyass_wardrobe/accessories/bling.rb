@@ -31,8 +31,10 @@ module Fancyass
     # - returns the response's body (usually yaml, or json)
     def get_request(connection, url, request_headers = {}, trousers='')
       response = connection.get do |request|
-        request_headers.each do |key, value|
-          request.headers[key] = value
+        unless request_headers.empty?
+          request_headers.each do |key, value|
+            request.headers[key] = value
+          end
         end
         request.url url
       end
